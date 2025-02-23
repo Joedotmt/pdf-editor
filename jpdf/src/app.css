@@ -1,0 +1,18 @@
+@import 'tailwindcss';
+
+body{
+    font-family: "Roboto", sans-serif;
+}
+button:hover{
+    cursor: pointer;
+}
+label:hover
+{
+    cursor: pointer;
+}
+label{
+    height: 32px;
+}
+button{
+    height: 32px;
+}
