@@ -156,23 +156,25 @@
 
 <style>
   .editing {
+    pointer-events: none;
+    border: dashed gray 1px;
     /* @apply pointer-events-none border-gray-800 border-dashed; */
   }
   .font-family {
+    display: block; appearance: none; height: calc(var(--spacing) * 6); width: 100%; background: white; padding-left: 2px; padding-right: 8px; line-height: 1.25;
     /* @apply block appearance-none h-6 w-full bg-white pl-2 pr-8 rounded-sm leading-tight; */
   }
 </style>
 
 <svelte:options immutable={true} />
-{#if operation}
+{#if operation == "edit" || operation == "tool"}
   <Toolbar>
     <div
       use:tapout
       on:tapout={onBlurTool}
       on:mousedown={onFocusTool}
       on:touchstart={onFocusTool}
-      class="h-full flex justify-center items-center bg-gray-300 border-b
-      border-gray-400">
+      class="gap-2 fixed z-10 top-0 left-0 right-0 h-12 flex justify-center items-center bg-[#e7d3f5] flex justify-between bg-surface">
       <div class="mr-2 flex items-center">
         <img src="/line_height.svg" class="w-6 mr-2" alt="Line height" />
         <input
@@ -218,11 +220,12 @@
           </div>
         </div>
       </div>
-      <div
+      <button
         on:click={onDelete}
-        class="w-5 h-5 rounded-full bg-white cursor-pointer">
-        <img class="w-full h-full" src="/delete.svg" alt="delete object" />
-      </div>
+        class="hover:bg-[#f8e8ff] flex items-center justify-center w-15 rounded-full border border-outline text-on-surface hover:bg-surface-variant cursor-pointer transition-colors
+                disabled:cursor-not-allowed disabled:border-outline-variant disabled:text-outline-variant">
+        <img class="w-full h-full" src="/delete2.svg" alt="delete object" />
+    </button>
     </div>
   </Toolbar>
 {/if}
@@ -236,7 +239,7 @@
     on:panstart={handlePanStart}
     on:panmove={handlePanMove}
     on:panend={handlePanEnd}
-    class="absolute w-full h-full cursor-grab border border-dotted
+    class="absolute w-full h-full cursor-grab hover:border border-dotted
     border-gray-500"
     class:cursor-grab={!operation}
     class:cursor-grabbing={operation === 'move'}
@@ -250,5 +253,5 @@
     spellcheck="false"
     class="outline-none whitespace-no-wrap"
     style="font-size: {_size}px; font-family: '{_fontFamily}', serif;
-    line-height: {_lineHeight}; -webkit-user-select: text;" />
+    line-height: {_lineHeight}; -webkit-user-select: text; white-space: nowrap;" />
 </div>

@@ -1198,7 +1198,7 @@ var app = (function () {
           return (size * lineHeight - size) / 2 + size / 10;
         },
       },
-      'Times-Roman': {
+      'Times New Roman': {
         correction(size, lineHeight) {
           return (size * lineHeight - size) / 2 + size / 7;
         },
@@ -4879,7 +4879,7 @@ var app = (function () {
     	let pages = [];
     	let pagesScale = [];
     	let allObjects = [];
-    	let currentFont = "Times-Roman";
+    	let currentFont = "Times New Roman";
     	let focusId = null;
     	let selectedPageIndex = -1;
     	let saving = false;

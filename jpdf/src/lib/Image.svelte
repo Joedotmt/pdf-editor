@@ -20,6 +20,8 @@
   let dw = 0;
   let dh = 0;
   let ratio = null;
+  let isEditMode = false;
+
   async function render() {
     // use canvas to prevent img tag's auto resize
     canvas.width = width;
@@ -45,6 +47,7 @@
       });
     }
   }
+
   function handlePanMove(event) {
     const _dx = (event.detail.x - startX) / pageScale;
     const _dy = (event.detail.y - startY) / pageScale;
@@ -128,17 +131,20 @@
       dw = 0;
       dh = 0;
       direction = "";
+      ratio = null; // Reset ratio after scaling
     }
     operation = "";
   }
+
   function calculateDimensionWithRatio(dw, dh) {
     const dhFromDw = (width + dw) / ratio - height;
     if (dh > dhFromDw) {
       const dwFromDh = (height + dh) * ratio - width;
       return [dwFromDh, dh];
     }
-    return [dw, dhFromDw]
+    return [dw, dhFromDw];
   }
+
   function handlePanStart(event) {
     startX = event.detail.x;
     startY = event.detail.y;
@@ -147,10 +153,27 @@
     }
     operation = "scale";
     direction = event.detail.target.dataset.direction;
+
+    // Set ratio if dragging from a corner
+    if (["left-top", "right-top", "left-bottom", "right-bottom"].includes(direction)) {
+      ratio = (width + dw) / (height + dh);
+    }
   }
+
   function onDelete() {
     dispatch("delete");
   }
+
+  function enterEditMode() {
+    isEditMode = true;
+  }
+
+  function exitEditMode(event) {
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      isEditMode = false;
+    }
+  }
+
   onMount(render);
   onMount(() => {
     function isShiftKey(key) {
@@ -175,66 +198,64 @@
   });
 </script>
 
+<svelte:options immutable={true} />
+<div
+  class="absolute left-0 top-0 select-none"
+  style="width: {width + dw}px; height: {height + dh}px; transform: translate({x + dx}px, {y + dy}px);"
+  tabindex="0"
+  on:focus={enterEditMode}
+  on:blur={exitEditMode}>
+
+  {#if isEditMode}
+    <div
+      use:pannable
+      on:panstart={handlePanStart}
+      on:panmove={handlePanMove}
+      on:panend={handlePanEnd}
+      class="absolute w-full h-full cursor-grab"
+      class:cursor-grabbing={operation === 'move'}
+      class:operation>
+      <div
+        data-direction="left"
+        class="absolute border-dashed border-gray-600 h-full w-1 left-0 top-0 border-l cursor-ew-resize" />
+      <div
+        data-direction="top"
+        class="absolute border-dashed border-gray-600 w-full h-1 left-0 top-0 border-t cursor-ns-resize" />
+      <div
+        data-direction="bottom"
+        class="absolute border-dashed border-gray-600 w-full h-1 left-0 bottom-0 border-b cursor-ns-resize" />
+      <div
+        data-direction="right"
+        class="absolute border-dashed border-gray-600 h-full w-1 right-0 top-0 border-r cursor-ew-resize" />
+      <div
+        data-direction="left-top"
+        class="absolute w-10 h-10 bg-blue-300 rounded-full left-0 top-0 cursor-nwse-resize transform
+        -translate-x-1/2 -translate-y-1/2 md:scale-25" />
+      <div
+        data-direction="right-top"
+        class="absolute w-10 h-10 bg-blue-300 rounded-full right-0 top-0 cursor-nesw-resize transform
+        translate-x-1/2 -translate-y-1/2 md:scale-25" />
+      <div
+        data-direction="left-bottom"
+        class="absolute w-10 h-10 bg-blue-300 rounded-full left-0 bottom-0 cursor-nesw-resize transform
+        -translate-x-1/2 translate-y-1/2 md:scale-25" />
+      <div
+        data-direction="right-bottom"
+        class="absolute w-10 h-10 bg-blue-300 rounded-full right-0 bottom-0 cursor-nwse-resize transform
+        translate-x-1/2 translate-y-1/2 md:scale-25" />
+    </div>
+    <div
+      on:click={onDelete}
+      class="absolute left-0 top-0 right-0 w-12 h-12 m-auto rounded-full bg-white
+      cursor-pointer transform -translate-y-1/2 md:scale-25">
+      <img class="w-full h-full" src="/delete.svg" alt="delete object" />
+    </div>
+  {/if}
+  <canvas class="w-full h-full" bind:this={canvas} />
+</div>
+
 <style>
   .operation {
     background-color: rgba(0, 0, 0, 0.3);
   }
-  .resize-border {
-    @apply absolute border-dashed border-gray-600;
-  }
-  .resize-corner {
-    @apply absolute w-10 h-10 bg-blue-300 rounded-full;
-  }
 </style>
-
-<svelte:options immutable={true} />
-<div
-  class="absolute left-0 top-0 select-none"
-  style="width: {width + dw}px; height: {height + dh}px; transform: translate({x + dx}px,
-  {y + dy}px);">
-
-  <div
-    use:pannable
-    on:panstart={handlePanStart}
-    on:panmove={handlePanMove}
-    on:panend={handlePanEnd}
-    class="absolute w-full h-full cursor-grab"
-    class:cursor-grabbing={operation === 'move'}
-    class:operation>
-    <div
-      data-direction="left"
-      class="resize-border h-full w-1 left-0 top-0 border-l cursor-ew-resize" />
-    <div
-      data-direction="top"
-      class="resize-border w-full h-1 left-0 top-0 border-t cursor-ns-resize" />
-    <div
-      data-direction="bottom"
-      class="resize-border w-full h-1 left-0 bottom-0 border-b cursor-ns-resize" />
-    <div
-      data-direction="right"
-      class="resize-border h-full w-1 right-0 top-0 border-r cursor-ew-resize" />
-    <div
-      data-direction="left-top"
-      class="resize-corner left-0 top-0 cursor-nwse-resize transform
-      -translate-x-1/2 -translate-y-1/2 md:scale-25" />
-    <div
-      data-direction="right-top"
-      class="resize-corner right-0 top-0 cursor-nesw-resize transform
-      translate-x-1/2 -translate-y-1/2 md:scale-25" />
-    <div
-      data-direction="left-bottom"
-      class="resize-corner left-0 bottom-0 cursor-nesw-resize transform
-      -translate-x-1/2 translate-y-1/2 md:scale-25" />
-    <div
-      data-direction="right-bottom"
-      class="resize-corner right-0 bottom-0 cursor-nwse-resize transform
-      translate-x-1/2 translate-y-1/2 md:scale-25" />
-  </div>
-  <div
-    on:click={onDelete}
-    class="absolute left-0 top-0 right-0 w-12 h-12 m-auto rounded-full bg-white
-    cursor-pointer transform -translate-y-1/2 md:scale-25">
-    <img class="w-full h-full" src="/delete.svg" alt="delete object" />
-  </div>
-  <canvas class="w-full h-full" bind:this={canvas} />
-</div>

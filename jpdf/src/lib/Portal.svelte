@@ -1,6 +1,18 @@
 <script>
+  import { onMount, onDestroy } from 'svelte';
   let portal;
-  $: portal && document.body.appendChild(portal);
+
+  onMount(() => {
+    if (portal) {
+      document.body.appendChild(portal);
+    }
+  });
+
+  onDestroy(() => {
+    if (portal && portal.parentNode) {
+      portal.parentNode.removeChild(portal);
+    }
+  });
 </script>
 
 <div bind:this={portal}>

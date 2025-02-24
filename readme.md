@@ -17,7 +17,6 @@ No install. No server. ¯\\\_(ツ)\_/¯ https://pdf-editor.now.sh
 - Adjust line height, font size, font family.
 - Mobile friendly.
 - Drag and drop to upload your PDF.
-- 支援中文（標楷體）。
 
 ---
 
