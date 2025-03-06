@@ -31,11 +31,10 @@
   });
 </script>
 
-<div>
+<div style="background-color: white;">
   <canvas
     bind:this={canvas}
-    class="max-w-full"
     style="width: {width}px;"
     {width}
-    {height} />
+    {height} ></canvas>
 </div>

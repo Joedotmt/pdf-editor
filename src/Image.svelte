@@ -216,24 +216,24 @@
     <div
       data-direction="left-top"
       class="resize-corner left-0 top-0 cursor-nwse-resize transform
-      -translate-x-1/2 -translate-y-1/2 md:scale-25" />
+      -translate-x-1/2 -translate-y-1/2  " />
     <div
       data-direction="right-top"
       class="resize-corner right-0 top-0 cursor-nesw-resize transform
-      translate-x-1/2 -translate-y-1/2 md:scale-25" />
+      translate-x-1/2 -translate-y-1/2  " />
     <div
       data-direction="left-bottom"
       class="resize-corner left-0 bottom-0 cursor-nesw-resize transform
-      -translate-x-1/2 translate-y-1/2 md:scale-25" />
+      -translate-x-1/2 translate-y-1/2  " />
     <div
       data-direction="right-bottom"
       class="resize-corner right-0 bottom-0 cursor-nwse-resize transform
-      translate-x-1/2 translate-y-1/2 md:scale-25" />
+      translate-x-1/2 translate-y-1/2  " />
   </div>
   <div
     on:click={onDelete}
     class="absolute left-0 top-0 right-0 w-12 h-12 m-auto rounded-full bg-white
-    cursor-pointer transform -translate-y-1/2 md:scale-25">
+    cursor-pointer transform -translate-y-1/2  ">
     <img class="w-full h-full" src="/delete.svg" alt="delete object" />
   </div>
   <canvas class="w-full h-full" bind:this={canvas} />

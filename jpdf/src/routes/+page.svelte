@@ -29,7 +29,23 @@
     let selectedPageIndex = -1;
     let saving = false;
     let addingDrawing = false;
+    let addingText = false; // <-- new variable for pending text addition
   
+    // Reactive statement to update the global pointer style
+    $: document.body.style.cursor = addingText ? 'crosshair' : '';
+
+    // New variables for ghost outline position
+    let ghostX = 0;
+    let ghostY = 0;
+  
+    // Update ghost position when mouse moves and addingText is true
+    function updateGhost(e) {
+      if (addingText) {
+        ghostX = e.clientX;
+        ghostY = e.clientY;
+      }
+    }
+
     // For test purposes – on mount, load a test PDF
     onMount(async () => {
       try {
@@ -108,12 +124,15 @@
     }
   
     function onAddTextField() {
+      // Instead of immediately adding a text field,
+      // wait for the user to click on a page.
       if (selectedPageIndex >= 0) {
-        addTextField();
+        addingText = true;
       }
     }
   
-    function addTextField(text = "New Text Field") {
+    // New helper function to add a text field at a given position.
+    function addTextFieldAt(x, y, text = "New Text Field") {
       const id = genID();
       fetchFont(currentFont);
       const object = {
@@ -124,8 +143,8 @@
         width: 0, // recalculate after editing
         lineHeight: 1.4,
         fontFamily: currentFont,
-        x: 0,
-        y: 0
+        x, // use x from click
+        y  // use y from click
       };
       allObjects = allObjects.map((objects, pIndex) =>
         pIndex === selectedPageIndex ? [...objects, object] : objects
@@ -205,13 +224,15 @@
   <svelte:window
     on:dragenter|preventDefault
     on:dragover|preventDefault
-    on:drop|preventDefault={onUploadPDF} />
+    on:drop|preventDefault={onUploadPDF}
+    on:mousemove={updateGhost} />
   
   <Tailwind />
   
-  <main class="flex flex-col items-center py-16 bg-[#F7F2FA] min-h-screen">
+  <main class="flex flex-col items-center pt-12 bg-[#F7F2FA] min-h-screen overflow-auto">
     <div
       class="gap-2 fixed z-10 top-0 left-0 right-0 h-12 flex justify-center items-center bg-[#e7d3f5] flex justify-between bg-surface">
+      <div style="position: absolute; left:1em">Joe's PDF Editor</div>
       <input type="file" name="pdf" id="pdf" on:change={onUploadPDF} class="hidden" />
       <input type="file" id="image" name="image" class="hidden" on:change={onUploadImage} />
       <label
@@ -236,6 +257,7 @@
                 disabled:cursor-not-allowed disabled:border-outline-variant disabled:text-outline-variant"
           class:cursor-not-allowed={selectedPageIndex < 0}
           class:text-outline-variant={selectedPageIndex < 0}
+          class:opacity-10={addingText}
           on:click={onAddTextField}>
           <img src="notes.svg" alt="An icon for adding text" />
         </button>
@@ -293,7 +315,7 @@
     {/if}
   
     {#if pages.length}
-      <div class="flex justify-center px-5 w-full md:hidden">
+      <div class="flex justify-center px-5 w-full md:hidden hidden">
         <img src="/edit.svg" class="mr-2" alt="a pen, edit pdf name" />
         <input
           placeholder="Rename your PDF here"
@@ -303,13 +325,25 @@
       </div>
       <div class="w-full">
         {#each pages as page, pIndex (page)}
-          <div
+          <div role="button" tabindex="0"
             class="p-3 w-full flex flex-col items-center overflow-hidden"
             on:mousedown={() => selectPage(pIndex)}
             on:touchstart={() => selectPage(pIndex)}>
             <div
-              class="relative outline-solid outline-[#00000055]"
-              class:shadow-outline={pIndex === selectedPageIndex}>
+              class="shadow-md relative outline-solid outline-[#00000055] rounded-lg overflow-hidden"
+              class:shadow-outline={pIndex === selectedPageIndex}
+              class:cursor-crosshair={(addingText && pIndex === selectedPageIndex)}
+              on:click={(e) => {
+                if (addingText && pIndex === selectedPageIndex) {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const scale = pagesScale[pIndex];
+                  const x = (e.clientX - rect.left) / scale;
+                  const y = (e.clientY - rect.top) / scale;
+                  addTextFieldAt(x, y);
+                  addingText = false;
+                  e.stopPropagation();
+                }
+              }}>
               <PDFPage
                 on:measure={e => onMeasure(e.detail.scale, pIndex)}
                 {page} />
@@ -363,5 +397,13 @@
         <span class="font-bold text-3xl text-gray-500">Drag something here</span>
       </div>
     {/if}
+    
+    {#if addingText}
+      <!-- Added ghost outline that follows the mouse. Adjust width/height as needed. -->
+      <div
+        class="fixed pointer-events-none border-1 border-dashed border-gray-500"
+        style="width: 100px; height: 32px; left: {ghostX}px; top: {ghostY}px;">
+        <div style="width: 100%; border-bottom:1px solid black; margin-top:30px"></div>
+      </div>
+    {/if}
   </main>
-  
