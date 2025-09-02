@@ -41,10 +41,6 @@
         ghostX = e.clientX;
         ghostY = e.clientY;
       }
-      else {
-        ghostX = 0;
-        ghostY = 0;
-      }
     }
 
     // For test purposes – on mount, load a test PDF
@@ -133,7 +129,7 @@
     }
   
     // New helper function to add a text field at a given position.
-    function addTextFieldAt(x, y, text = "") {
+    function addTextFieldAt(x, y, text = "New Text Field") {
       const id = genID();
       fetchFont(currentFont);
       const object = {
@@ -405,7 +401,6 @@
         class="fixed pointer-events-none border-1 border-dashed border-gray-500"
         style="width: 100px; height: 32px; left: {ghostX}px; top: {ghostY}px;">
         <div style="width: 100%; border-bottom:1px solid black; margin-top:20px;"></div>
-        <div style="width: 100%; position:absolute; top:0; margin:5px; margin-top:3px; opacity:0.3">Text</div>
       </div>
     {/if}
   </main>

@@ -31,7 +31,7 @@
   let initialLineHeight;
   let initialWidth;
   let initialFontSize;
-  let textWidth = "500px"//'auto'; // Add this for controlling text width
+  let textWidth = "fit-content"//'auto'; // Add this for controlling text width
   
   function handlePanStart(event) {
     startX = event.detail.x;
@@ -393,7 +393,7 @@
       on:paste|preventDefault={onPaste}
       contenteditable="true"
       spellcheck="false"
-      class="outline-none whitespace-no-wrap py-1 px-2"
+      class="outline-none whitespace-no-wrap py-1 px-2 /*issue with padding*/"
       id="enijeijiejiejjifn"
       style="font-size: {_size}px; font-family: '{_fontFamily}', serif; line-height: {_lineHeight}; width: {textWidth}; -webkit-user-select: text; white-space: pre-wrap;">
     </div>
